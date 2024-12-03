@@ -27,4 +27,26 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-export { registerUser };
+const userLogin = async (req, res, next) => {
+  try {
+    let { email, password } = req.body;
+    let user = await User.findOne({ email });
+    if (!user) {
+      let err = new Error(`${email} not registered!`);
+      err.status = 400;
+      throw err;
+    }
+    let matchPassword = await bcrypt.compare(password, user.password);
+    if (!matchPassword) {
+      let err = new Error(`Invalid password!`);
+      err.status = 400;
+      throw err;
+    } else {
+      res.send({ message: "Login Success!" });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+export { registerUser, userLogin };
